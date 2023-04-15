@@ -1,0 +1,61 @@
+markdown: kramdown
+url: ''
+baseurl: null
+title: Kevin Allegretti
+description: Project 1
+site-image: /WhatATheme/assets/images/meta.jpg
+site-keywords: 'Site, Template, Theme'
+favicon-url: null
+heroimage: http://localhost:4000/IMG-5480.jpg
+email: Kevin.Allegretti1@marist.edu
+facebook_username: thedevslot
+twitter_username: thedevslot
+instagram_username: KevinAllegretti
+linkedin_username: thedevslot
+github_username: thedevslot
+youtube_channel_id: UCk_93NXYP-U_AOB5GfWlOow
+reddit_username: /
+behance_username: /
+dribbble_username: /
+spotify_username: /
+google-analytics: UA-163806439-1
+disqus-shortname: thedevslot
+author-name: TheDevsLot
+author-image: 'http://localhost:4000/IMG-5480.jpg'
+author-about: >-
+  I am a student at Marist College and I am 21 years old. I enjoy playing golf,
+  music producing, and coding.
+author-url: 'https://github.com/KevinAllegretti'
+sass:
+  sass_dir: _sass
+  style: compressed
+plugins:
+  - jekyll-admin
+  - jekyll-feed
+permalink: 'blog/:title'
+compress_html:
+  clippings: all
+defaults:
+  - scope:
+      type: posts
+    values:
+      layout: post
+      post-image: ''
+      description: ''
+      tags:
+        - ''
+  - scope:
+      type: pages
+    values:
+      layout: page
+exclude:
+  - .sass-cache/
+  - .jekyll-cache/
+  - gemfiles/
+  - Gemfile
+  - Gemfile.lock
+  - node_modules/
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
