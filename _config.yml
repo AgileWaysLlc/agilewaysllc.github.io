@@ -1,8 +1,8 @@
 markdown: kramdown
 url: ""
 baseurl: null
-title: AgileWays, LLC
-description: Home Page for Awesomeness
+title: AgileWays
+description: Cloud Native and Identity Solutions
 site-image: /
 site-keywords: "Cloud Native, Identity, Software, Development, Consulting, Success, Solutions"
 favicon-url: null
@@ -10,16 +10,16 @@ heroimage: http://localhost:4000/IMG-5480.jpg
 email: help@agileways.com
 facebook_username:
 twitter_username: AgileWays
-instagram_username: /
+instagram_username:
 linkedin_username: /
 github_username: AgileWaysLlc
-youtube_channel_id: /
-reddit_username: /
-behance_username: /
-dribbble_username: /
-spotify_username: /
+youtube_channel_id:
+reddit_username:
+behance_username:
+dribbble_username:
+spotify_username:
 google-analytics:
-disqus-shortname: /
+disqus-shortname:
 author-name: AgileWays, LLC
 author-image: "https://pbs.twimg.com/profile_images/1647210265669140482/n85_4Hi8_400x400.jpg"
 author-about: >-
