@@ -29,7 +29,9 @@
                     href="{{site.url}}{{site.baseurl}}/blog">BLOG</a>
                 <a class="navbar-item {% if page.layout == 'listing' %}is-active{% endif %}"
                     href="{{sire.url}}{{site.baseurl}}/Services">SERVICES</a>
-                <!-- {% include dropdown.html %} -->
+                {% comment %}
+                {% include dropdown.html %}
+                {% endcomment %}
             </div>
 
         </div>
