@@ -6,7 +6,7 @@ description: Cloud Native and Identity Solutions
 site-image: /
 site-keywords: "Cloud Native, Identity, Software, Development, Consulting, Success, Solutions"
 favicon-url: null
-heroimage: ./assets/images/AgileWaysPuzzle.jpg
+heroimage: /assets/images/AgileWaysPuzzle.jpg
 email: help@agileways.com
 facebook_username:
 twitter_username: AgileWays
