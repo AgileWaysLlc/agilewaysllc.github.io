@@ -1,38 +1,37 @@
 markdown: kramdown
-url: ''
+url: ""
 baseurl: null
-title: Kevin Allegretti
-description: Project 1
-site-image: /WhatATheme/assets/images/meta.jpg
-site-keywords: 'Site, Template, Theme'
+title: AgileWays, LLC
+description: Home Page for Awesomeness
+site-image: /
+site-keywords: "Cloud Native, Identity, Software, Development, Consulting, Success, Solutions"
 favicon-url: null
 heroimage: http://localhost:4000/IMG-5480.jpg
-email: Kevin.Allegretti1@marist.edu
-facebook_username: thedevslot
-twitter_username: thedevslot
-instagram_username: KevinAllegretti
-linkedin_username: thedevslot
-github_username: thedevslot
-youtube_channel_id: UCk_93NXYP-U_AOB5GfWlOow
+email: help@agileways.com
+facebook_username:
+twitter_username: AgileWays
+instagram_username: /
+linkedin_username: /
+github_username: AgileWaysLlc
+youtube_channel_id: /
 reddit_username: /
 behance_username: /
 dribbble_username: /
 spotify_username: /
-google-analytics: UA-163806439-1
-disqus-shortname: thedevslot
-author-name: TheDevsLot
-author-image: 'http://localhost:4000/IMG-5480.jpg'
+google-analytics:
+disqus-shortname: /
+author-name: AgileWays, LLC
+author-image: "https://pbs.twimg.com/profile_images/1647210265669140482/n85_4Hi8_400x400.jpg"
 author-about: >-
-  I am a student at Marist College and I am 21 years old. I enjoy playing golf,
-  music producing, and coding.
-author-url: 'https://github.com/KevinAllegretti'
+  AgileWays is a technology consultancy focusing on identity and cloud native app development architectures and solutions.
+author-url: "https://github.com/AgileWaysLlc"
 sass:
   sass_dir: _sass
   style: compressed
 plugins:
   - jekyll-admin
   - jekyll-feed
-permalink: 'blog/:title'
+permalink: "blog/:title"
 compress_html:
   clippings: all
 defaults:
@@ -40,10 +39,10 @@ defaults:
       type: posts
     values:
       layout: post
-      post-image: ''
-      description: ''
+      post-image: ""
+      description: ""
       tags:
-        - ''
+        - ""
   - scope:
       type: pages
     values:
