@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Why we think about identity as a graph, not a gate — AgileWays Blog</title>
+<meta name="description" content="A short note on why access control works better as a set of relationships than a single yes/no check.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/images/favicon-192.png">
+<link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <a href="/index.html" class="logo"><img src="/assets/images/AgileWaysLogo.png" alt="AgileWays" class="logo-mark"><span class="wordmark">Agile<span class="accent">Ways</span></span></a>
+      <ul class="navlinks">
+        <li><a href="/index.html#services">Services</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/blog.html">Blog</a></li>
+      </ul>
+      <a href="/index.html#contact" class="btn">Start a conversation</a>
+    </nav>
+  </div>
+</header>
+
+<main class="section">
+  <div class="wrap">
+    <div class="post-header">
+      <span class="eyebrow">blog</span>
+      <h1>Why we think about identity as a graph, not a gate</h1>
+      <p class="post-meta">August 5, 2026</p>
+    </div>
+    <article class="prose">
+      <p>Most teams treat identity as a gate: you're either in, or you're not. In practice, the systems that hold up under real usage treat it as a <strong>graph</strong> — a web of relationships between users, services, and resources, each with its own scope and lifetime.</p>
+<h2 id="why-this-matters">Why this matters</h2>
+<p>When access is modeled as a graph instead of a gate:</p>
+<ul>
+<li>Permissions can be scoped narrowly, per relationship, instead of globally</li>
+<li>Revoking one connection doesn't require touching the whole system</li>
+<li>Audit trails become a natural byproduct instead of an afterthought</li>
+</ul>
+<h2 id="a-simple-example">A simple example</h2>
+<pre><code class="language-text">user --&gt; service A (read-only, 30 days)
+user --&gt; service B (read/write, until revoked)
+</code></pre>
+<p>Each edge in that graph carries its own policy. That's the shape we default to when we design IAM strategy for clients — whether we're working in Azure AD B2C, a custom claims-based system, or something in between.</p>
+<p>If you're rethinking how access is modeled in your own systems, <a href="/index.html#contact">get in touch</a> — this is the kind of problem we like digging into.</p>
+    </article>
+    <div class="post-footer">
+      <a href="/blog.html" class="btn btn-ghost">&larr; Back to all posts</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>&copy; 2026 AgileWays LLC</span>
+    <span><a href="/about.html">About</a> &middot; <a href="/index.html#services">Services</a> &middot; <a href="/blog.html">Blog</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
