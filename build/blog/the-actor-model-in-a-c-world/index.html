@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Actor Model in a C# World — AgileWays Blog</title>
+<meta name="description" content="Using the actor model in .NET projects adds power and elegance to your solutions.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/images/favicon-192.png">
+<link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <a href="/index.html" class="logo"><img src="/assets/images/AgileWaysLogo.png" alt="AgileWays" class="logo-mark"><span class="wordmark">Agile<span class="accent">Ways</span></span></a>
+      <ul class="navlinks">
+        <li><a href="/index.html#services">Services</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/blog.html">Blog</a></li>
+      </ul>
+      <a href="/index.html#contact" class="btn">Start a conversation</a>
+    </nav>
+  </div>
+</header>
+
+<main class="section">
+  <div class="wrap">
+    <div class="post-header">
+      <span class="eyebrow">blog</span>
+      <h1>The Actor Model in a C# World</h1>
+      <p class="post-meta">December 7, 2023</p>
+    </div>
+    <article class="prose">
+      <p><em>This post is the first in an occasional series on building a distributed system using Akka.NET. Check back as I add to this series.</em></p>
+<p>I was reminded of how much the Actor Model influenced me as a developer when I recently read <a href="https://petabridge.com/">Petabridge</a>'s post about reflecting on <a href="https://petabridge.com/blog/10-years-of-akkadotnet/">10 years of building Akka.NET</a>. At first I thought, "oh my goodness - it's been 10 years!!" and reflected on how much my life has changed over those 10 years. I first came across the actor model (and Akka.NET specifically) around 2015 when I was trying to architect a solution for processing unstructure data in a very dynamic and efficient manner. I had heard of the actor model but hadn't really dug into it - and it turned out to really help produce a great solution.</p>
+<p>(NB: While this post is about using Akka.NET's implementation of the Actor Model, there are several other frameworks out there, such as <a href="https://github.com/dotnet/orleans">Orleans</a> and <a href="https://github.com/asynkron/protoactor-dotnet">Proto.Actor</a>. <a href="https://docs.dapr.io/developing-applications/building-blocks/actors/actors-overview/">Dapr</a> also contains support for actors.)</p>
+<p>The Actor Model is one of those approaches to system design that, at first, struck me as somewhat related to <a href="https://martinfowler.com/bliki/CQRS.html">CQRS</a> (another favorite of mine) due to its embrace of message passing and SRP type of classes. As I learned more about it, I discovered its simplicity and elegance, and its power. The <a href="https://en.wikipedia.org/wiki/History_of_the_Actor_model">Actor Model</a> goes back to the 1970s with <a href="https://en.wikipedia.org/wiki/Carl_Hewitt">Carl Hewitt</a> and has gained popularity over time for its ability to provide a simple approach to building highly scalable and concurrent systems. (It seems that many of the powerful tools we have in our dev toolbelts come from this time period!)</p>
+<p>(If you want an enjoyable video showing some greats having a discussion about the Actor Model, check out this <a href="https://youtu.be/1zVdhDx7Tbs?si=bK2tx_0XIKC-10ak">informal whiteboard chat</a> with Erik Meijer, Carl Hewitt, and Clemens Szyperski.)</p>
+<h2 id="what-is-the-actor-model">What is the Actor Model</h2>
+<p>So briefly, what is the Actor Model and why should I use it? If you've had to design a system where you need to create a number of threads to handle some type of concurrent processing and ensure that you don't paint yourself into a deadlock corner, the Actor Model could be a tool to help solve that problem.</p>
+<p>Actor Model systems are characterized by communication via immutable messages between objects called "actors". An actor is generally a small, lightweight object that should be specialized in its scope and can have its own state. An actor can communicate with other actors via messages, which are immutable POCOs. Actors are lightweight, cheap to spin up, and should be easy to tear down. Actor systems can see hundreds, thousands or more actors running at any given time.</p>
+<p>Actors, in some actor model frameworks, can create actors of their own ("children") and can supervise those child actors. These supervisor actors can determine to tear down, restart, or ignore child actors that potentially get into a bad state.</p>
+<p>Actors pass messages to each other. In Akka.NET, those messages are handled via a <a href="https://getakka.net/articles/actors/mailboxes.html">Mailbox</a>, which is a queue for the actor. The actor receives the next message from its Mailbox when it's ready to process it. As a result, your actors process one message at a time as they are received off the Mailbox queue.</p>
+<p><img alt="Actor Mailbox" src="/assets/images/blog/akkadotnet-mailbox.png" /></p>
+<p>And when I pass a message to an actor, at least in Akka.NET, I either <code>Tell</code> or <code>Ask</code> the actor. If I <code>Tell</code> a message to an actor, I'm passing a message to the actor and not waiting on a response. (Sounds like issuing a command in CQRS!) But if I <code>Ask</code> a message to an actor, I'll wait on a response from the actor. So Akka.NET supports both asynchronous and synchronous methods of communicating between actors. Generally, I've favored the <code>Tell</code> approach to actor communication, but there are situations where you'd want to <code>Ask</code> instead of <code>Tell</code>.</p>
+<p>In Akka.NET, actors are arranged in a hierarchical tree structure. As actors create new child nodes, the tree can grow, and the actors higher in the hierarchy can supervise those actors below them in the tree.</p>
+<p><img alt="Actor Model Hierarchy" src="/assets/images/blog/actor-hierarchy.png" /></p>
+<p>In the image above, I've created a actor hierarchy to handle the processing of baseball game data - handling batters as individual actors, games as individual actors, and even aspects of batters and games as their own actors (for instance, how to handle what to do on different pitch counts). More on baseball data in future posts!</p>
+<h2 id="hello-actor">Hello Actor!</h2>
+<p>Enough of the talk...let's see the codez, right!??!</p>
+<p>We'll use a pretty simple example of counting words in a document. I want a count of each unique word in a document and how many times they appear. I'd also like to order that list in descending order.</p>
+<p>You can view the whole sample project <a href="https://github.com/DavidHoerster/ActorWordCounter1_5">here in GitHub</a>.</p>
+<p>Our console app will do the following steps (which is much like a map-reduce operation):
+- Create an <code>ActorSystem</code> which will instantiate the necessary actor plumbing;
+- Create a top level supervisor actor (<code>CountSupervisor</code>) which will initiate the counting of words by a number of <code>LineCounter</code> actors
+  - <code>CountSupervisor</code> will also receive results from its child actors when they are finished counting words
+  - <code>CountSupervisor</code> will also display the final results of the counts when all children are complete
+- <code>CountSupervisor</code> will then send a message to a <code>LineActor</code> actor for each line in the document it was passed
+- <code>LineActor</code> will count the words in the line it was passed, totally up how many unique words and their frequency
+- <code>LineActor</code> will then send back to <code>CountSupervisor</code> (its parent) a new message with its word count for that line
+- <code>CountSupervisor</code> receives the counts from its children and updates its own internal count
+- When all children have reported back and no more lines are available for the document, <code>CountSupervisor</code> will report its results</p>
+<p>We'll create a dotnet console app and then include the Akka.NET nuget package:</p>
+<pre><code class="language-ps1">dotnet add package Akka
+</code></pre>
+<h3 id="the-actor-system">The Actor System</h3>
+<p>We'll assume that I have a little helper method that prompts the user which document they want the word count for (e.g. Declaration of Independence) and the location of that document will be in a variable named <code>file</code>.</p>
+<p>Let's use Akka.NET 1.5 to create a simple Actor System. The Actor System is essentially the runtime for Akka.NET in your app and instantiates all of the necessary internal actors and threads to manage your actors. You want to create an <code>ActorSystem</code> once, as it's a fairly heavy object:</p>
+<pre><code class="language-csharp">var system = ActorSystem.Create(&quot;wordCounter&quot;);
+</code></pre>
+<h3 id="our-first-actor">Our First Actor</h3>
+<p>The <code>ActorSystem</code>, now instantiated, will allow us to create our top level actors and subsequent child actors to process our file and count some words. Let's create the top level supervisor and pass a file to it that we want to get a word count:</p>
+<pre><code class="language-csharp">var counter = system.ActorOf(CountSupervisor.Create(), &quot;supervisor&quot;);
+counter.Tell(new StartCount(file));
+</code></pre>
+<p>If you look in the code, you'll notice that most of my actors will have a helper static method call <code>Create</code> which creates a shortcut way to instantiate an actor. In <code>CountSupervisor</code>. In the code above, the <code>ActorOf</code> method creates a child actor (and is available on actors to create other children). It takes in a <code>Props</code> object, and creating a helper <code>Create</code> method on my actors is a consistent pattern of actor creation.</p>
+<h3 id="diving-into-countsupervisor">Diving into CountSupervisor</h3>
+<pre><code class="language-csharp">public static Props Create()
+{
+    return Props.Create(() =&gt; new CountSupervisor());
+}
+</code></pre>
+<p>I could also pass in parameters to Create if my actor needs some initial state when it is created.</p>
+<p>Passing a message to an actor is a lot like invoking a method in a "traditional" object-oriented system, except my arguments are encapsulated in an immutable structure.</p>
+<p>What does that message look like? Well it's a basic POCO class with a simple property on it:</p>
+<pre><code class="language-csharp">public class StartCount
+{
+    public readonly String FileName;
+
+    public StartCount(String file) { FileName = file; }
+}
+</code></pre>
+<p>And the <code>CountSupervisor</code> actor? There's a bit here, so let's take a look at what's going on:</p>
+<pre><code class="language-csharp">public class CountSupervisor : ReceiveActor
+{
+    ...
+
+    //some state for this actor
+    private Dictionary&lt;String, Int32&gt; _wordCount;
+    private readonly Int32 _numberOfRoutees;
+    private Int32 _completeRoutees;
+
+    public CountSupervisor()
+    {
+        _wordCount = new Dictionary&lt;String, Int32&gt;();
+        _numberOfRoutees = 5;   //hard-coded, but should be passed in via config
+        _completeRoutees = 0;
+
+        SetupBehaviors();
+    }
+
+    private void SetupBehaviors()
+    {
+        Receive&lt;StartCount&gt;(msg =&gt;
+        {
+            var fileInfo = new FileInfo(msg.FileName);  //get a handle to the file
+            var lineNumber = 0;
+
+            //create my pool of child actors (RoundRobinPool)
+            var lineReader = Context.ActorOf(new RoundRobinPool(_numberOfRoutees)
+                                .Props(LineReaderActor.Create()));
+
+            using (var reader = fileInfo.OpenText())    //open the file
+            {
+                while (!reader.EndOfStream)             //loop through each line
+                {
+                    lineNumber++;
+
+                    var line = reader.ReadLine() ?? String.Empty;
+                    lineReader.Tell(new ReadLineForCounting(lineNumber, line)); //pass the line contents to child
+                }
+            }
+
+            //once done, tell everyone we're done with lines!
+            lineReader.Tell(new Broadcast(new Complete()));
+        });
+
+        Receive&lt;MappedList&gt;(msg =&gt; ... });  //for brevity
+
+        Receive&lt;Complete&gt;(msg =&gt; ...});     //for brevity
+    }
+}
+</code></pre>
+<p>Actors can have state, and so our actors will take advantage of holding on to some state in order to collect word counts and keep track of how many children are complete with their tasks. 
+In the constructor of <code>CountSupervisor</code> I set up some initial values and then call a helper method <code>SetupBehaviors</code>. This is just a style I use and isn't necessary, but I like to refactor out my messaging handling into a separate method. You'll see that I'm defining message handlers for three different messages that <code>CountSupervisor</code> handles: <code>StartCount</code>, <code>MappedList</code>, and <code>Complete</code>. This <code>Receive</code> method comes from my actor inheriting from <code>ReceiveActor</code>, and the method takes a message parameter and then I can process it how I deem necessary. I could call other existing actors, spawn new ones, shutdown children, etc. In the case of <code>StartCount</code>, we're opening the file, looping through it, creating some <code>LineReaderActor</code>s for processing each line of the document, and then telling all children that we're done (via the <code>Broadcast</code> built-in method that tells all children the <code>Complete</code> message).</p>
+<p>There's an interesting thing in <code>CountSupervisor</code>. Since I don't need specific child actors to process lines, I'll just create a pool of child actors and pass lines to them in a round robin fashion using a <a href="https://getakka.net/articles/actors/routers.html#routing-strategies">RoundRobinPool</a> routing strategy. Think of it as dealing cards around a table, and we stop when there are no more cards (aka lines) to pass out.</p>
+<h3 id="dont-forget-about-me-the-linereaderactor">Don't Forget About Me, the LineReaderActor</h3>
+<p>And that mysterious LineReaderActor? Here we go:</p>
+<pre><code class="language-csharp">public class LineReaderActor  : ReceiveActor
+{
+    public static Props Create()
+    {
+        return Props.Create(() =&gt; new LineReaderActor());
+    }
+
+    public LineReaderActor()
+    {
+        SetupBehaviors();
+    }
+
+    private void SetupBehaviors()
+    {
+        Receive&lt;ReadLineForCounting&gt;(msg =&gt;
+        {
+            var cleanFileContents = Regex.Replace(msg.Line, @&quot;[^\u0000-\u007F]&quot;, &quot; &quot;);
+
+            var wordCounts = new Dictionary&lt;String, Int32&gt;();
+
+            var wordArray = cleanFileContents.Split(new char[] { ' ' }, 
+                StringSplitOptions.RemoveEmptyEntries);
+            foreach (var word in wordArray)
+            {
+                if (wordCounts.ContainsKey(word))
+                {
+                    wordCounts[word] += 1;
+                }
+                else
+                {
+                    wordCounts.Add(word, 1);
+                }
+            }
+
+            Sender.Tell(new MappedList(msg.LineNumber, wordCounts));
+        });
+
+        Receive&lt;Complete&gt;(msg =&gt;
+        {
+            Sender.Tell(msg);
+        });
+    }
+}
+</code></pre>
+<p>Again, you see that <code>LineReaderActor</code> inherits from <code>ReceiveActor</code> and handles two messages: <code>ReadLineForCounting</code> (from <code>CountSupervisor</code>) and <code>Complete</code> (from the <code>Broadcast</code> call).</p>
+<p>The line reader actor takes the string it was passed and creates a simple Dictionary that keeps count of unique words and their count. When it's done counting, it sends that Dictionary back to its sender (<code>CountSupervisor</code> in this case). And the <code>Complete</code> handler? Remember the mailbox concept -- that <code>Complete</code> message will be processed when <code>LineReaderActor</code> is complete with its other messages, and it will send it back to <code>CountSupervisor</code> to let it know its complete.</p>
+<p><img alt="LineReaderActor mailbox" src="/assets/images/blog/mailbox-messages.png" /></p>
+<p>So <code>LineReaderActor</code> will process each message in its mailbox in the order received (default FIFO behavior) and will continue processing until the <code>Complete</code> message is received. And this happens for each <code>LineReaderActor</code>. It's pretty slick how Akka.NET provides this plumbing to let you focus more on your business logic!</p>
+<h3 id="aggregating-results">Aggregating Results</h3>
+<p>OK, so our <code>LineReaderActors</code> have are processing messages and are reporting back to <code>CountSupervisor</code>. Let's look at the two remaining messages for the Count.</p>
+<pre><code class="language-csharp">Receive&lt;MappedList&gt;(msg =&gt;
+{
+    foreach (var key in msg.LineWordCount.Keys)
+    {
+        if (_wordCount.ContainsKey(key))
+        {
+            _wordCount[key] += msg.LineWordCount[key];
+        }
+        else
+        {
+            _wordCount.Add(key, msg.LineWordCount[key]);
+        }
+    }
+});
+
+Receive&lt;Complete&gt;(msg =&gt;
+{
+    _completeRoutees++;
+
+    if (_completeRoutees == _numberOfRoutees)
+    {
+        var topWords = _wordCount.OrderByDescending(w =&gt; w.Value).Take(25);
+        foreach (var word in topWords)
+        {
+            Console.WriteLine($&quot;{word.Key} == {word.Value} times&quot;);
+        }
+    }
+});
+</code></pre>
+<p>The <code>MappedList</code> message contains the results from a single <code>LineReaderActor</code> and the Count just adds the results to its own count. </p>
+<p>And finally, when it receives a <code>Complete</code> message, it updates its count of completed routees (<code>LineReaderActors</code> that it spawned in the round robin pool). If the number of completed routees equals the number of available routees, then the Count knows everyone is complete and it compiles and displays its results to the console.</p>
+<p><img alt="The results are in!" src="/assets/images/blog/word-count-result.png" /></p>
+<h2 id="wrapping-up">Wrapping Up</h2>
+<p>Hopefully with this simple example you can see the power of the Actor Model. It's definitely not a tool to be used for every problem, so definitely investigate if your problem has a need for a concurrent and scalable solution. If so, maybe the Actor Model is for you.</p>
+<p>I'll update this post over the holidays as I build out additional posts in this series.</p>
+    </article>
+    <div class="post-footer">
+      <a href="/blog.html" class="btn btn-ghost">&larr; Back to all posts</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>&copy; 2026 AgileWays LLC</span>
+    <span><a href="/about.html">About</a> &middot; <a href="/index.html#services">Services</a> &middot; <a href="/blog.html">Blog</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
