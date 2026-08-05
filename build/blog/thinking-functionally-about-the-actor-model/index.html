@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thinking Functionally About The Actor Model — AgileWays Blog</title>
+<meta name="description" content="Think about the actor model not in a procedural way, but in a functional way. Maybe it could be a 'hactor' model!">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/images/favicon-192.png">
+<link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <a href="/index.html" class="logo"><img src="/assets/images/AgileWaysLogo.png" alt="AgileWays" class="logo-mark"><span class="wordmark">Agile<span class="accent">Ways</span></span></a>
+      <ul class="navlinks">
+        <li><a href="/index.html#services">Services</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/blog.html">Blog</a></li>
+      </ul>
+      <a href="/index.html#contact" class="btn">Start a conversation</a>
+    </nav>
+  </div>
+</header>
+
+<main class="section">
+  <div class="wrap">
+    <div class="post-header">
+      <span class="eyebrow">blog</span>
+      <h1>Thinking Functionally About The Actor Model</h1>
+      <p class="post-meta">December 9, 2023</p>
+    </div>
+    <article class="prose">
+      <h2 id="thinking-functionally">Thinking Functionally</h2>
+<p>If you read the previous post about <a href="/assets/images/blog/actor-model-dotnet">The Actor Model in a C# World</a>, I was thinking of how the Actor Model influenced me towards thinking more functionally and also going down the path of teaching myself <a href="http://learnyouahaskell.com/">Haskell</a>. </p>
+<p>If I had a file and wanted to count unique word counts using Haskell, how would that look?</p>
+<pre><code class="language-haskell">module Main where
+
+import System.IO  
+import Data.List
+import qualified Data.Map as M
+import qualified Data.Map.Strict as MS
+
+main :: IO ()
+main = do
+    withFile &quot;/home/david/code/git/actorfunc/app/doc.txt&quot; ReadMode (\handle -&gt; do
+        contents &lt;- hGetContents handle 
+        let textContents = contents
+        putStrLn $ show $ countWordsInDoc textContents)
+
+--- Take the top 10 words from a sorted list
+countWordsInDoc :: String -&gt; [(String, Int)]
+countWordsInDoc contents = take 10 $ sortedList
+    --- lines contents breaks the file into an array of Strings
+    --- countLines takes an empty Map and the array of String
+    --- the return of countLines is then sorted, in descending order of the value (the count)
+    where sortedList = sortBy (\(k1, v1) (k2, v2) -&gt; v2 `compare` v1) $ M.toList $ countLines M.empty $ lines contents
+
+countLines :: (M.Map String Int) -&gt; [String] -&gt; (M.Map String Int)
+--- if the array of lines is empty, return the Map (exit case of recursion)
+countLines map [] = map
+--- if we have lines to process, then take our existing Map and union it with wordMap's result
+countLines map (l:ls) = countLines (M.unionWith (+) map wordMap) ls
+    --- call countWords after breaking the current line into an array of strings
+    where wordMap = countWords M.empty $ words l
+
+
+countWords :: (M.Map String Int) -&gt; [String] -&gt; (M.Map String Int)
+--- if we're all out of words (empty list) then return the map (exit recursion case)
+countWords map [] = map
+--- if we have words to process, then use a nifty insertWith function to increment our Map
+---  if the value in the Map exists, increment the value by 1; otherwise, set the value to 1
+countWords map (w:ws) = countWords (MS.insertWith (+) w 1 map) ws
+</code></pre>
+<p>What's happening here? Quite a bit and it's pretty slick how little code has to be written in order to accomplish so much.</p>
+<p>The comments in the code above describe what's going on, and it generally helps to work from the bottom up in reading functional code (at least that's how my brain functions).</p>
+<p>Now, compared to the Actor Model example, there's a lot of limitations here. There's no scaling going on here, no concurrency. Everything happens sequentially. But you can kind of see how the Actor Model tends to lend itself to thinking of problems more functionally. When you break a problem down into functions and messages (what needs to be passed where and when), things start to come together.</p>
+<p>Hope you enjoyed this little aside.</p>
+    </article>
+    <div class="post-footer">
+      <a href="/blog.html" class="btn btn-ghost">&larr; Back to all posts</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>&copy; 2026 AgileWays LLC</span>
+    <span><a href="/about.html">About</a> &middot; <a href="/index.html#services">Services</a> &middot; <a href="/blog.html">Blog</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
