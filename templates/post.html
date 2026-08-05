@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{title}} — AgileWays Blog</title>
+<meta name="description" content="{{summary}}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400..700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/images/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/images/favicon-192.png">
+<link rel="apple-touch-icon" href="/assets/images/apple-touch-icon.png">
+<link rel="stylesheet" href="/assets/css/styles.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <a href="/index.html" class="logo"><img src="/assets/images/AgileWaysLogo.png" alt="AgileWays" class="logo-mark"><span class="wordmark">Agile<span class="accent">Ways</span></span></a>
+      <ul class="navlinks">
+        <li><a href="/index.html#services">Services</a></li>
+        <li><a href="/about.html">About</a></li>
+        <li><a href="/blog.html">Blog</a></li>
+      </ul>
+      <a href="/index.html#contact" class="btn">Start a conversation</a>
+    </nav>
+  </div>
+</header>
+
+<main class="section">
+  <div class="wrap">
+    <div class="post-header">
+      <span class="eyebrow">blog</span>
+      <h1>{{title}}</h1>
+      <p class="post-meta">{{date_display}}</p>
+    </div>
+    <article class="prose">
+      {{content}}
+    </article>
+    <div class="post-footer">
+      <a href="/blog.html" class="btn btn-ghost">&larr; Back to all posts</a>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>&copy; 2026 AgileWays LLC</span>
+    <span><a href="/about.html">About</a> &middot; <a href="/index.html#services">Services</a> &middot; <a href="/blog.html">Blog</a></span>
+  </div>
+</footer>
+
+</body>
+</html>
